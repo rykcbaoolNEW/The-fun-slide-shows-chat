@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+    #chat { max-width: 600px; margin: 20px auto; padding: 10px; border: 1px solid #ccc; background: white; }
+    #messages { list-style: none; padding: 0; max-height: 300px; overflow-y: scroll; }
+    #messages li { padding: 8px; border-bottom: 1px solid #ddd; }
+    #form { display: flex; }
+    #form input { flex: 1; padding: 10px; border: 1px solid #ccc; }
+    #form button { padding: 10px; }
+    .login { text-align: center; }
+    .login button { padding: 10px; }
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <div class="login">
+      <h1>Chat App</h1>
+      <button onclick="login()">Login with GitHub</button>
+      <button onclick="logout()">Logout</button>
+    </div>
+    <ul id="messages"></ul>
+    <form id="form">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    document.getElementById('form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const input = document.getElementById('input');
+      if (input.value) {
+        socket.emit('sendMessage', {
+          content: input.value,
+          sender: 'User'
+        });
+        input.value = '';
+      }
+    });
+
+    socket.on('newMessage', function(msg) {
+      const item = document.createElement('li');
+      item.textContent = `${msg.sender}: ${msg.content}`;
+      document.getElementById('messages').appendChild(item);
+    });
+
+    function login() {
+      window.location.href = '/auth/github';
+    }
+
+    function logout() {
+      window.location.href = '/logout';
+    }
+  </script>
+</body>
+</html>
